@@ -21,6 +21,7 @@ def plot(data, title, log=True):
     plt.title(title)
     plt.grid(True)
     plt.savefig(title)
+    
 # No.,Time,Source,Protocol,
 # 0    1    2      3
 # Length,Encapsulation type,Source IP,Destination IP,
@@ -54,9 +55,9 @@ def getType(dictFlow):
     udp = 0
     ip = 0
     for flow in dictFlow:
-        if "TCP" in flow:
+        if "tcp" in dictFlow[flow][0][11]:
             tcp += len(dictFlow[flow])
-        if "UDP" in flow:
+        if "udp" in dictFlow[flow][0][11]:
             udp += len(dictFlow[flow])
         if "ip" in dictFlow[flow][0][11]:
             ip += len(dictFlow[flow])
@@ -67,9 +68,9 @@ def getFlowCount(dictFlow):
     udp = 0
     ip = 0
     for flow in dictFlow:
-        if "TCP" in flow:
+        if "tcp" in dictFlow[flow][0][11]:
             tcp += 1
-        if "UDP" in flow:
+        if "udp" in dictFlow[flow][0][11]:
             udp += 1
         if "ip" in dictFlow[flow][0][11]:
             ip += 1
@@ -85,9 +86,9 @@ def getDuration(dictFlow):
         last = float(dictFlow[flow][-1][1])
         time = last - first     
         duration.append(time)   
-        if "TCP" in flow:
+        if "tcp" in dictFlow[flow][0][11]:
             tcp.append(time)
-        if "UDP" in flow:
+        if "udp" in dictFlow[flow][0][11]:
             udp.append(time)
     return duration, tcp, udp
 
@@ -112,9 +113,10 @@ def flowSizeCal(flows):
         count = len(flows[flow])
         allSize.append(size)
         allCount.append(count)
-        if "TCP" in flow:
+        if "tcp" in flows[flow][0][11]:
             tcpSize.append(size)
             tcpCount.append(count)
+
             if float(size) == 0.0:
                 ratio.append(9999)
             else:
@@ -136,15 +138,15 @@ def interPacketArrival(flows):
         for i in range(1, len(pkt)):
             key = pkt[i][6] + " " + pkt[i][7] + " " + pkt[i][8] + " " + pkt[i][9] + " " + pkt[i][3]
             if key == flow:
-                if float(pkt[i][1]) - first == 278.157092:
-                    print(pkt)
+                # if float(pkt[i][1]) - first == 278.157092:
+                    # print(pkt)
                 time.append(float(pkt[i][1]) - first)
                 first = float(pkt[i][1])
             
         allTime += time
-        if 'TCP' in flow:
+        if "tcp" in pkt[0][11]:
             tcpTime += time
-        if 'UDP' in flow:
+        if 'udp' in pkt[0][11]:
             udpTime += time
     return allTime, tcpTime, udpTime
 
@@ -212,41 +214,61 @@ def getLargestFlow(flows):
     resultByte = [[], [], []]
     resultDuration = [[], [], []]
     for key in flows:
-        if 'TCP' in key:
+        if "tcp" in flows[key][0][11]:
             flow = flows[key]
-            prev = ""
-            validFlow = []
+            byte = 0
             for i in range(len(flow)):
                 curFlow = flow[i]
-                byte = 0
-                dur = 0
-                cur = curFlow[2:10] + curFlow[11:15]
-                if  cur != prev: 
-                    validFlow.append(curFlow)
-                    byte += int(curFlow[4])
-                prev = cur
-            dur = float(validFlow[-1][1]) - float(validFlow[0][1])
-            num = len(validFlow)
+                byte += int(curFlow[4])
+            dur = float(flow[-1][1]) - float(flow[0][1])
+            num = len(flow)
             if num > pktNum[0]:
-                resultNum[0] = validFlow
+                pktNum[2] = pktNum[1]
+                pktNum[1] = pktNum[0]
+                pktNum[0] = num
+                resultNum[2] = resultNum[1]
+                resultNum[1] = resultNum[0]
+                resultNum[0] = flow
             elif num > pktNum[1]:
-                resultNum[1] = validFlow
+                pktNum[2] = pktNum[1]
+                pktNum[1] = num
+                resultNum[2] = resultNum[1]
+                resultNum[1] = flow
             elif num > pktNum[2]:
-                resultNum[2] = validFlow
+                pktNum[2] = num
+                resultNum[2] = flow
 
             if byte > byteSize[0]:
-                resultByte[0] = validFlow
+                byteSize[2] = byteSize[1]
+                byteSize[1] = byteSize[0]
+                byteSize[0] = byte
+                resultByte[2] = resultByte[1]
+                resultByte[1] = resultByte[0]
+                resultByte[0] = flow
             elif byte > byteSize[1]:
-                resultByte[1] = validFlow
+                byteSize[2] = byteSize[1]
+                byteSize[1] = byte
+                resultByte[2] = resultByte[1]
+                resultByte[1] = flow
             elif byte > byteSize[2]:
-                resultByte[2] = validFlow
+                byteSize[2] = byte
+                resultByte[2] = flow
 
             if dur > duration[0]:
-                resultDuration[0] = validFlow
+                duration[2] = duration[1]
+                duration[1] = duration[0]
+                duration[0] = dur
+                resultDuration[2] = resultDuration[1]
+                resultDuration[1] = resultDuration[0]
+                resultDuration[0] = flow
             elif dur > duration[1]:
-                resultDuration[1] = validFlow
+                duration[2] = duration[1]
+                duration[1] = dur
+                resultDuration[2] = resultDuration[1]
+                resultDuration[1] = flow
             elif dur > duration[2]:
-                resultDuration[2] = validFlow
+                duration[2] = dur
+                resultDuration[2] = flow
     return resultNum, resultByte, resultDuration          
 
 
@@ -312,11 +334,42 @@ def flowSizeOutput(flows):
     fpt.write(str(ratio))
     fpt.close()
 
+def generateFlowCSV():
+    output = open('/Users/Greywolf/Documents/school/CSC/458/flows.csv', "w")
+    wr = csv.writer(output, dialect='excel')
+    for flow in flows:
+        for line in flows[flow]:
+            wr.writerow(line)       
+        wr.writerow([])
+    output.close()
+
+def generateFlowNoDup():
+    csvFile = open('/Users/Greywolf/Documents/school/CSC/458/rtt.csv')
+    packets = csv.reader(csvFile)
+    output = open('/Users/Greywolf/Documents/school/CSC/458/tcpflows.csv', "w")
+
+    flows = generateFlow(packets)
+    wr = csv.writer(output, dialect='excel')
+    for flow in flows:
+        for line in flows[flow]:
+            wr.writerow(line)       
+        wr.writerow([])
+    output.close()
+    csvFile.close()
+    return flows
+
+def getRTT(larNum, larSize, LonDur):
+
+
 if __name__ == "__main__":   
     # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/packets.csv')
     # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
     # packets = csv.reader(csvfile)
     # flows = generateFlow(packets)
+    generateFlowNoDup()
+
+
+    # print(flows.values()[:9])
     # tcp,udp,ip = getFlowCount(flows)
     # print("tcp, udp, ip:", tcp, udp, ip)
     # csvfile.close()
@@ -348,6 +401,7 @@ if __name__ == "__main__":
     # csvfile.close()
     # 
     #return allSize, allCount, tcpSize, tcpCount, udpSize, udpCount, ratio
+
     csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
     packets = csv.reader(csvfile)
     flows = generateFlow(packets)
@@ -386,10 +440,5 @@ if __name__ == "__main__":
 
 #     flowSizeOutput(flows)
     # interPacketArrival(flows)
-# <<<<<<< HEAD
-#     # print(getTCPState(flows))
-#     print(getLargestFlow(flows))
-# 
-#     # 
-# =======
-# >>>>>>> 63c65a941b4feae9d16c2c092377cdfffd9a011d
+    # print(getTCPState(flows))
+    # print(len(getLargestFlow(flows)[0][0]),len(getLargestFlow(flows)[1][0]),len(getLargestFlow(flows)[2][0]))
