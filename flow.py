@@ -6,11 +6,18 @@ import datetime
 import math
 
 
+def replace_valueA_to_valueB(list, valueA, valueB):
+    for idx, item in enumerate(list):
+        if item == valueA:
+            list[idx] = valueB
+
 def plot(data, title, log=True):
     
-    # if log: data =np.log(data)
+    if log: data =np.log(data)
     plt.figure()
     plt.hist(data, density=True, histtype='stepfilled', cumulative=True, alpha=0.75, edgecolor = 'black')
+    plt.xlabel('Log {}'.format(title[:-9]) if log else '{}'.format(title[:-9]))
+    plt.yticks(np.linspace(0,1,11))
     plt.title(title)
     plt.grid(True)
     plt.savefig(title)
@@ -108,7 +115,10 @@ def flowSizeCal(flows):
         if "TCP" in flow:
             tcpSize.append(size)
             tcpCount.append(count)
-            ratio.append(header/float(size))
+            if float(size) == 0.0:
+                ratio.append(9999)
+            else:
+                ratio.append(header/float(size))
         if "UDP" in flow:
             udpSize.append(size)
             udpCount.append(count)
@@ -136,7 +146,6 @@ def interPacketArrival(flows):
             tcpTime += time
         if 'UDP' in flow:
             udpTime += time
-    print(max(allTime))
     return allTime, tcpTime, udpTime
 
 def getTCPState(flows):
@@ -297,17 +306,25 @@ if __name__ == "__main__":
     packets = csv.reader(csvfile)
     flows = generateFlow(packets)
     # 
-    allInterPacket, tcpInterPacket, udpInterPacket = interPacketArrival(flows)
-    plot(allInterPacket, 'allInterPacketArrival_CDF_plot')
-    plot(tcpInterPacket, 'tcpInterPacketArrival_CDF_plot')
-    plot(udpInterPacket, 'udpInterPacketArrival_CDF_plot')
+    # allInterPacket, tcpInterPacket, udpInterPacket = interPacketArrival(flows)
+    # plot(allInterPacket, 'ALLinterPacketArrival_CDF_plot')
+    # plot(tcpInterPacket, 'TCPinterPacketArrival_CDF_plot')
+    # plot(udpInterPacket, 'UDPinterPacketArrival_CDF_plot')
 
-    # allSize, allCount, tcpSize, tcpCount, udpSize, udpCount, ratio = flowSizeCal(flows)
+    allSize, allCount, tcpSize, tcpCount, udpSize, udpCount, ratio = flowSizeCal(flows)
+    # print(len(allSize))
+    # 
+    # replace_valueA_to_valueB(allSize, 0, 1)
+    # replace_valueA_to_valueB(tcpSize, 0, 1)
+    # replace_valueA_to_valueB(udpSize, 0, 1)
+    # 
     # plot(allSize, 'allFlowSizes_CDF_plot')
     # plot(tcpSize, 'TCPflowSize_CDF_plot')
     # plot(udpSize, 'UDPflowSize_CDF_plot')
-    # plot(ratio, 'TCPoverheadRatio_CDF_plot')
-    # csvfile.close()
+
+    plot(ratio, 'TCPoverheadRatio_CDF_plot',False)
+    plot(ratio, 'TCPoverheadRatio_CDF_plot(with log)')
+    csvfile.close()
     
 
 #     # flowtype
