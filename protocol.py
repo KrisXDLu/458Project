@@ -4,6 +4,21 @@ import matplotlib.pyplot as plt
 import time
 import datetime
 import math
+import os
+
+
+# arr = np.random.normal(size=100)
+# 
+# plt.subplot(121)
+# hist, bin_edges = np.histogram(arr)
+# cdf = np.cumsum(hist)
+# plt.plot(cdf)
+# 
+# plt.subplot(122)
+# cdf = stats.cumfreq(arr)
+# plt.plot(cdf[0])
+# 
+# plt.show()
 
 # No.,Time,Source,Protocol,
 # 0    1    2      3
@@ -17,23 +32,43 @@ import math
 #  16  17  18  19
 # ACK No,TCP Segment Len,Info
 # 20      21              22
-def plot(data, name):
-    data = np.sort(data)
-    y = 1. * np.arange(len(data))/(len(data)-1)
-    plt.plot(data, y)
-    # data = np.log(data)
-    plt.scatter(data, y)
-    plt.xscale('log', basex=math.e)
-    plt.xlim(1, 55)
-    # plt.show()
-    plt.savefig(name)
-    plt.close()
+def plot(data, title, log=True):
+    # data.sort()
+    # print (data)
+    # count = len(data)
+    # plotDataset = [[],[]]
+    # count = len(data)
+    # plotDataset[0].append(data[0])
+    # plotDataset[1].append(float(1/count))
+    # t=1
+    # s=0
+    # 
+    # for i in range(1, count):
+    #     s += float(1/count)
+    #     if data[i] != data[i-1]:
+    #         plotDataset[0].append(data[i])
+    #         plotDataset[1].append(s)
+    #         t+=1
+    #     else:
+    #         plotDataset[1][t-1] += float(1/count)
+    #     
+    # plt.plot(plotDataset[0], plotDataset[1], '-', linewidth=2)
+    # 
+    # mu = np.mean(data, axis=0)
+    # sigma = np.std(data, axis=0)
+    # data = np.random.normal(mu, sigma, size=count)
+    data = [int(i) for i in data]
+    if log: data = np.log(data)
+    plt.figure()
+    plt.hist(data, density=True, histtype='stepfilled', cumulative=True, alpha=0.75, edgecolor = 'black')
+    plt.title(title)
+    plt.grid(True)
+    plt.savefig(title)
 
 def total(packets):
     total = []
     for pkt in packets:
         protocol = pkt[11]
-        # if 'ip' in protocol or 'icmp' in protocol:
         total.append(pkt[4])
     return total
 
@@ -83,30 +118,37 @@ if __name__ == "__main__":
     # ip_header = np.array([])
     # tcp_header = np.array([])
     # udp_header = np.array([])
-    csvfile = open('/Users/kuma/Documents/csc458/proj/458Project/packets.csv')
-    # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/packets.csv')
-    packets = csv.reader(csvfile)
-    tcp, tcp_header = isTCP(packets)
-    print(len(tcp), len(tcp_header))
-    csvfile.close()
+
+    # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
+    # # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/packets.csv')
+    # packets = csv.reader(csvfile)
+    # tcp, tcp_header = isTCP(packets)
+    # csvfile.close()
+    # plot(tcp, 'tcp_packetsize_CDF_plot')
+    # plot(tcp, 'tcpHeader_size_CDF_plot')
+    # 
+    # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
+    # packets = csv.reader(csvfile)
+    # ip, ip_header = isIP(packets)
+    # csvfile.close()
+    # plot(tcp, 'IP_packetsize_CDF_plot')
+    # plot(tcp, 'IPheader_size_CDF_plot')
+    # 
+    # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
+    # packets = csv.reader(csvfile)
+    # udp, udp_header = isUDP(packets)
+    # csvfile.close()
+    # plot(tcp, 'UDP_packetsize_CDF_plot')
+    # plot(tcp, 'UDPheader_size_CDF_plot')
     
-    csvfile = open('/Users/kuma/Documents/csc458/proj/458Project/packets.csv')
-    packets = csv.reader(csvfile)
-    ip, ip_header = isIP(packets)
-    print(len(ip), len(ip_header))
-    csvfile.close()
-    
-    csvfile = open('/Users/kuma/Documents/csc458/proj/458Project/packets.csv')
-    packets = csv.reader(csvfile)
-    udp, udp_header = isUDP(packets)
-    print(len(udp), len(udp_header))
-    csvfile.close()
-    
-    csvfile = open('/Users/kuma/Documents/csc458/proj/458Project/packets.csv')
+    csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
     packets = csv.reader(csvfile)
     nonIP = isNonIP(packets)
-    print(len(nonIP))
+    print(nonIP)
     csvfile.close()
+    plot(nonIP, 'non-IP_packetsize_CDF_plot')
+    
+    
     # total(packets)
     # # loop through packets
     # for pkt in packets:
