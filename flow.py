@@ -360,6 +360,10 @@ if __name__ == "__main__":
     allSize, allCount, tcpSize, tcpCount, udpSize, udpCount, ratio = flowSizeCal(flows)
     # print(len(allSize))
     # 
+    
+    print("all flows, bytes:", len(allSize), sum(allSize))
+    print("tcp flows, bytes:", len(tcpSize), sum(tcpSize))
+    print("udp flows, bytes:", len(udpSize), sum(udpSize))
     # replace_valueA_to_valueB(allSize, 0, 1)
     # replace_valueA_to_valueB(tcpSize, 0, 1)
     # replace_valueA_to_valueB(udpSize, 0, 1)
@@ -368,8 +372,8 @@ if __name__ == "__main__":
     # plot(tcpSize, 'TCPflowSize_CDF_plot')
     # plot(udpSize, 'UDPflowSize_CDF_plot')
 
-    plot(ratio, 'TCPoverheadRatio_CDF_plot',False)
-    plot(ratio, 'TCPoverheadRatio_CDF_plot(with log)')
+   ##   plot(ratio, 'TCPoverheadRatio_CDF_plot',False)
+    # plot(ratio, 'TCPoverheadRatio_CDF_plot(with log)')
     csvfile.close()
     
 
@@ -382,10 +386,10 @@ if __name__ == "__main__":
 
 #     flowSizeOutput(flows)
     # interPacketArrival(flows)
-<<<<<<< HEAD
-    # print(getTCPState(flows))
-    print(getLargestFlow(flows))
-
-    # 
-=======
->>>>>>> 63c65a941b4feae9d16c2c092377cdfffd9a011d
+# <<<<<<< HEAD
+#     # print(getTCPState(flows))
+#     print(getLargestFlow(flows))
+# 
+#     # 
+# =======
+# >>>>>>> 63c65a941b4feae9d16c2c092377cdfffd9a011d
