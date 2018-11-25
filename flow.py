@@ -115,16 +115,11 @@ def flowSizeCal(flows):
         if "tcp" in flows[flow][0][11]:
             tcpSize.append(size)
             tcpCount.append(count)
-<<<<<<< HEAD
-            ratio.append(header/float(size))
-        if "udp" in flows[flow][0][11]:
-=======
             if float(size) == 0.0:
                 ratio.append(9999)
             else:
                 ratio.append(header/float(size))
         if "UDP" in flow:
->>>>>>> 4ac485538613e0a6670f5824eaeee7a4cf9f5afd
             udpSize.append(size)
             udpCount.append(count)
     return allSize, allCount, tcpSize, tcpCount, udpSize, udpCount, ratio
@@ -161,7 +156,7 @@ def getTCPState(flows):
     failed = 0
     total = 0
     for key in flows:
-        if 'TCP' in key:
+        if "tcp" in flows[key][0][11]:
             total += 1
             flow = flows[key]
             if isRequest(flow):
@@ -361,15 +356,21 @@ def generateFlowNoDup():
     csvFile.close()
     return flows
 
-def getRTT(larNum, larSize, LonDur):
+def getRTT(flows):
+    larNum, larSize, LonDur = getLargestFlow(flows)
+
+def calEstRTT(flowList):
+    for flow in flowList:
+        print(1)
 
 
 if __name__ == "__main__":   
-    # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/packets.csv')
+    csvfile = open('/Users/Greywolf/Documents/school/CSC/458/rtt.csv')
     # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
-    # packets = csv.reader(csvfile)
-    # flows = generateFlow(packets)
-    generateFlowNoDup()
+    packets = csv.reader(csvfile)
+    flows = generateFlow(packets)
+    getRTT(flows)
+    # generateFlowNoDup()
 
 
     # print(flows.values()[:9])
@@ -404,7 +405,6 @@ if __name__ == "__main__":
     # csvfile.close()
     # 
     #return allSize, allCount, tcpSize, tcpCount, udpSize, udpCount, ratio
-<<<<<<< HEAD
     # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
     # packets = csv.reader(csvfile)
     # flows = generateFlow(packets)
@@ -413,18 +413,8 @@ if __name__ == "__main__":
     # plot(allInterPacket, 'allInterPacketArrival_CDF_plot')
     # plot(tcpInterPacket, 'tcpInterPacketArrival_CDF_plot')
     # plot(udpInterPacket, 'udpInterPacketArrival_CDF_plot')
-=======
-    csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
-    packets = csv.reader(csvfile)
-    flows = generateFlow(packets)
-    # 
-    # allInterPacket, tcpInterPacket, udpInterPacket = interPacketArrival(flows)
-    # plot(allInterPacket, 'ALLinterPacketArrival_CDF_plot')
-    # plot(tcpInterPacket, 'TCPinterPacketArrival_CDF_plot')
-    # plot(udpInterPacket, 'UDPinterPacketArrival_CDF_plot')
->>>>>>> 4ac485538613e0a6670f5824eaeee7a4cf9f5afd
 
-    allSize, allCount, tcpSize, tcpCount, udpSize, udpCount, ratio = flowSizeCal(flows)
+    # allSize, allCount, tcpSize, tcpCount, udpSize, udpCount, ratio = flowSizeCal(flows)
     # print(len(allSize))
     # 
     # replace_valueA_to_valueB(allSize, 0, 1)
@@ -435,9 +425,9 @@ if __name__ == "__main__":
     # plot(tcpSize, 'TCPflowSize_CDF_plot')
     # plot(udpSize, 'UDPflowSize_CDF_plot')
 
-    plot(ratio, 'TCPoverheadRatio_CDF_plot',False)
-    plot(ratio, 'TCPoverheadRatio_CDF_plot(with log)')
-    csvfile.close()
+    # plot(ratio, 'TCPoverheadRatio_CDF_plot',False)
+    # plot(ratio, 'TCPoverheadRatio_CDF_plot(with log)')
+    # csvfile.close()
     
 
 #     # flowtype
