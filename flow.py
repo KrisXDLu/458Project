@@ -21,8 +21,11 @@ def generateFlow(packets):
     dic_flow = {}
     for pkt in packets:
         key = pkt[6] + " " + pkt[7] + " " + pkt[8] + " " + pkt[9] + " " + pkt[3]
+        key2 = pkt[7] + " "  + pkt[6] + " " + pkt[9] + " " + pkt[8] + " " + pkt[3]
         if key in dic_flow:
             dic_flow[key].append(pkt)
+        elif key2 in dic_flow:
+            dic_flow[key2].append(pkt)
         else:
             dic_flow[key] = [pkt]
     return dic_flow
@@ -75,7 +78,7 @@ def flowSizeCal(flows):
         if "UDP" in flow:
             udpSize.append(size)
             udpCount.append(count)
-
+    return allSize, allCount, tcpSize, tcpCount, udpSize, udpCount
 
 def flowType(flows):
     tcp, udp, ip = packetsNum(flows)
@@ -114,8 +117,8 @@ if __name__ == "__main__":
     packets = csv.reader(csvfile)
     flows = generateFlow(packets)
 
-    # # flowtype
-#     flowType(flows)
-# # duration
-#     flowDuration(flows)
+    # flowtype
+    flowType(flows)
+# duration
+    flowDuration(flows)
 
