@@ -108,7 +108,28 @@ def interPacketArrival(flows):
             udpTime += time
     return allTime, tcpTime, udpTime
 
-# def getTCPState(flows):
+def getTCPState(flows):
+    requested = 0
+    reset = 0
+    finished = 0
+    ongoing = 0
+    failed = 0
+    total = 0
+    for key in flows:
+        if 'TCP' in key:
+            total += 1
+            flow = flows[key]
+            if isRequest(flow):
+                requested += 1
+            elif isReset(flow):
+                reset += 1
+            elif isFinished(flow):
+                finished += 1
+            elif isOngoing(flow):
+                ongoing += 1
+            else:
+                failed += 1
+    return requested, reset, finished, ongoing, failed, total
 
 
 def isRequest(flow):
@@ -120,8 +141,8 @@ def isReset(flow):
 def isFinished(flow):
     return flow[-2][18] == 'set' and flow[-1][17] == 'set'
 
-def isFailed(flow):
-    return not (isReset(flow) or isFinished(flow))
+def isOngoing(flow):
+    return not (isRequest(flow) or isReset(flow) or isFinished(flow))
 
 def flowType(flows):
     tcp, udp, ip = getType(flows)
