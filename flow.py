@@ -204,6 +204,52 @@ def isFinished(flow):
 def isOngoing(flow):
     return not (isRequest(flow) or isReset(flow) or isFinished(flow))
 
+def getLargestFlow(flows):
+    pktNum = [0, 0, 0]
+    byteSize = [0, 0, 0]
+    duration = [0, 0, 0]
+    resultNum = [[], [], []]
+    resultByte = [[], [], []]
+    resultDuration = [[], [], []]
+    for key in flows:
+        if 'TCP' in key:
+            flow = flows[key]
+            prev = ""
+            validFlow = []
+            for i in range(len(flow)):
+                curFlow = flow[i]
+                byte = 0
+                dur = 0
+                cur = curFlow[2:10] + curFlow[11:15]
+                if  cur != prev: 
+                    validFlow.append(curFlow)
+                    byte += int(curFlow[4])
+                prev = cur
+            dur = float(validFlow[-1][1]) - float(validFlow[0][1])
+            num = len(validFlow)
+            if num > pktNum[0]:
+                resultNum[0] = validFlow
+            elif num > pktNum[1]:
+                resultNum[1] = validFlow
+            elif num > pktNum[2]:
+                resultNum[2] = validFlow
+
+            if byte > byteSize[0]:
+                resultByte[0] = validFlow
+            elif byte > byteSize[1]:
+                resultByte[1] = validFlow
+            elif byte > byteSize[2]:
+                resultByte[2] = validFlow
+
+            if dur > duration[0]:
+                resultDuration[0] = validFlow
+            elif dur > duration[1]:
+                resultDuration[1] = validFlow
+            elif dur > duration[2]:
+                resultDuration[2] = validFlow
+    return resultNum, resultByte, resultDuration          
+
+
 def flowType(flows):
     tcp, udp, ip = getType(flows)
     fpt = open('/Users/Greywolf/Documents/school/CSC/458/project/flowType.txt', "w")
@@ -332,5 +378,14 @@ if __name__ == "__main__":
 # # duration
 #     flowDuration(flows)
 
+
+
 #     flowSizeOutput(flows)
     # interPacketArrival(flows)
+<<<<<<< HEAD
+    # print(getTCPState(flows))
+    print(getLargestFlow(flows))
+
+    # 
+=======
+>>>>>>> 63c65a941b4feae9d16c2c092377cdfffd9a011d
