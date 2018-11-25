@@ -94,10 +94,13 @@ def interPacketArrival(flows):
     for flow in flows:
         time = []
         pkt = flows[flow]
+        # print(pkt[0][6] + " " + pkt[0][7] + " " + pkt[0][8] + " " + pkt[0][9] + " " + pkt[0][3], flow)
         first = float(pkt[0][1])
         for i in range(1, len(pkt)):
             key = pkt[i][6] + " " + pkt[i][7] + " " + pkt[i][8] + " " + pkt[i][9] + " " + pkt[i][3]
             if key == flow:
+                if float(pkt[i][1]) - first == 278.157092:
+                    print(pkt)
                 time.append(float(pkt[i][1]) - first)
                 first = float(pkt[i][1])
             
@@ -106,6 +109,7 @@ def interPacketArrival(flows):
             tcpTime += time
         if 'UDP' in flow:
             udpTime += time
+    print(max(allTime))
     return allTime, tcpTime, udpTime
 
 def getTCPState(flows):
@@ -130,16 +134,36 @@ def getTCPState(flows):
             else:
                 failed += 1
     return requested, reset, finished, ongoing, failed, total
-
+# (56, 4292, 20, 7514, 0, 11882)
 
 def isRequest(flow):
-    return flow[0][16] == 'set' and len(flow) == 1
+    return flow[0][16] == 'Set' and len(flow) == 1
 
 def isReset(flow):
-    return flow[-1][19] == 'set'
+    return flow[-1][19] == 'Set'
 
 def isFinished(flow):
-    return flow[-2][18] == 'set' and flow[-1][17] == 'set'
+    if len(flow) <= 4:
+        return False
+    # print(flow[-4:])
+    if flow[-4][18] != 'Set':
+        return False 
+    pkt = flow[-1]
+    pkt1 = flow[-4]
+    key = pkt[6] + " " + pkt[7] + " " + pkt[8] + " " + pkt[9] + " " + pkt[3]
+    key1 = pkt1[7] + " "  + pkt1[6] + " " + pkt1[9] + " " + pkt1[8] + " " + pkt1[3]
+    if not (key == key1 and pkt[17] == 'Set'):
+        return False
+    pkt = flow[-3]
+    pkt1 = flow[-2]
+    if not (pkt[6] + " " + pkt[7] + " " + pkt[8] + " " 
+                + pkt[9] + " " + pkt[3] ==  pkt1[7] + " "  + 
+                pkt1[6] + " " + pkt1[9] + " " + pkt1[8] + " " + pkt1[3]
+                and pkt[17] == 'Set'):
+        return False
+    if pkt1[18] != 'Set':
+        return False   
+    return True
 
 def isOngoing(flow):
     return not (isRequest(flow) or isReset(flow) or isFinished(flow))
@@ -211,10 +235,11 @@ if __name__ == "__main__":
     packets = csv.reader(csvfile)
     flows = generateFlow(packets)
 
-    # flowtype
-    flowType(flows)
-# duration
-    flowDuration(flows)
+#     # flowtype
+#     flowType(flows)
+# # duration
+#     flowDuration(flows)
 
-    flowSizeOutput(flows)
-    interPacketArrival(flows)
+#     flowSizeOutput(flows)
+    # interPacketArrival(flows)
+    print(getTCPState(flows))
