@@ -4,6 +4,16 @@ import matplotlib.pyplot as plt
 import time
 import datetime
 import math
+
+
+def plot(data, title, log=True):
+    
+    if log: data =np.log(data)
+    plt.figure()
+    plt.hist(data, density=True, histtype='stepfilled', cumulative=True, alpha=0.75, edgecolor = 'black')
+    plt.title(title)
+    plt.grid(True)
+    plt.savefig(title)
 # No.,Time,Source,Protocol,
 # 0    1    2      3
 # Length,Encapsulation type,Source IP,Destination IP,
@@ -30,6 +40,8 @@ def generateFlow(packets):
             dic_flow[key] = [pkt]
     return dic_flow
 
+
+#list of counts of packets for each flow
 def getType(dictFlow):
     tcp = 0
     udp = 0
@@ -43,6 +55,8 @@ def getType(dictFlow):
             ip += len(dictFlow[flow])
     return tcp, udp, ip
 
+
+#list of durations for all flows/ tcp flows / udp flows
 def getDuration(dictFlow):
     duration = []
     tcp = []
@@ -58,6 +72,7 @@ def getDuration(dictFlow):
             udp.append(time)
     return duration, tcp, udp
 
+# list of flowsize for each flow
 def flowSizeCal(flows):
     allSize = []
     allCount = []
@@ -207,14 +222,40 @@ def flowSizeOutput(flows):
     fpt.close()
 
 if __name__ == "__main__":   
-    csvfile = open('/Users/Greywolf/Documents/school/CSC/458/packets.csv')
+#     csvfile = open('/Users/Greywolf/Documents/school/CSC/458/packets.csv')
+#     packets = csv.reader(csvfile)
+#     flows = generateFlow(packets)
+#     csvfile.close()
+# 
+#     # flowtype
+#     flowType(flows)
+# # duration
+#     flowDuration(flows)
+# 
+#     flowSizeOutput(flows)
+#     interPacketArrival(flows)
+    
+    
+    #charlie's plot
+    
+    
+    # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
+    # packets = csv.reader(csvfile)
+    # flows = generateFlow(packets)
+    # duration, tcp, udp = getDuration(flows)
+    # plot(duration, 'allFlowDuration_CDF_plot')
+    # plot(tcp, 'TCPflowDuration_CDF_plot')
+    # plot(udp, 'UDPflowDuration_CDF_plot')
+    # csvfile.close()
+    
+    #return allSize, allCount, tcpSize, tcpCount, udpSize, udpCount, ratio
+    csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
     packets = csv.reader(csvfile)
     flows = generateFlow(packets)
-
-    # flowtype
-    flowType(flows)
-# duration
-    flowDuration(flows)
-
-    flowSizeOutput(flows)
-    interPacketArrival(flows)
+    allSize, allCount, tcpSize, tcpCount, udpSize, udpCount, ratio = flowSizeCal(flows)
+    plot(allSize, 'allFlowSizes_CDF_plot')
+    plot(tcpSize, 'TCPflowSize_CDF_plot')
+    plot(udpSize, 'UDPflowSize_CDF_plot')
+    plot(ratio, 'RatioFlowSize_CDF_plot')
+    csvfile.close()
+    
