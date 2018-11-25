@@ -57,8 +57,13 @@ def plot(data, title, log=True):
     # mu = np.mean(data, axis=0)
     # sigma = np.std(data, axis=0)
     # data = np.random.normal(mu, sigma, size=count)
-    data = [int(i) for i in data]
-    if log: data = np.log(data)
+    # for i in range(len(data)):
+    #     if isinstance(data[i], str):
+    #         data[i] = int(data[i])
+    #     else:
+    #         data[i] = 1
+
+    if log: data = [np.log(i) for i in data]
     plt.figure()
     plt.hist(data, density=True, histtype='stepfilled', cumulative=True, alpha=0.75, edgecolor = 'black')
     plt.title(title)
@@ -69,7 +74,8 @@ def total(packets):
     total = []
     for pkt in packets:
         protocol = pkt[11]
-        total.append(pkt[4])
+        if pkt[4].isnumeric():
+            total.append(int(pkt[4]))
     return total
 
 def isIP(packets):
@@ -77,17 +83,17 @@ def isIP(packets):
     ip_header = []
     for pkt in packets:
         protocol = pkt[11]
-        if 'ip' in protocol or 'icmp' in protocol:
-            ip.append(pkt[4])
-            ip_header.append(pkt[13])
+        if pkt[13].isnumeric() and ('ip' in protocol or 'icmp' in protocol):
+            ip.append(int(pkt[4]))
+            ip_header.append(int(pkt[13]))
     return ip, ip_header
     
 def isNonIP(packets):
     nonIp = []
     for pkt in packets:
         protocol = pkt[11]
-        if ('ip' not in protocol) and ('icmp' not in protocol):
-            nonIp.append(pkt[4])
+        if pkt[4].isnumeric() and ('ip' not in protocol) and ('icmp' not in protocol):
+            nonIp.append(int(pkt[4]))
     return nonIp
 
 def isTCP(packets):
@@ -96,8 +102,8 @@ def isTCP(packets):
     for pkt in packets:
         protocol = pkt[11]
         if 'tcp' in protocol:
-            tcp.append(pkt[4])
-            tcp_header.append(pkt[14])
+            tcp.append(int(pkt[4]))
+            tcp_header.append(int(pkt[14]))
     return tcp, tcp_header
     
 def isUDP(packets):
@@ -105,41 +111,43 @@ def isUDP(packets):
     udp_header = []
     for pkt in packets:
         protocol = pkt[11]
-        if 'udp' in protocol:
-            udp.append(pkt[4])
+        if pkt[4].isnumeric() and 'udp' in protocol:
+            udp.append(int(pkt[4]))
     return udp, udp_header
 
 if __name__ == "__main__":   
-    # ip = np.array([])
-    # udp = np.array([])
-    # tcp = np.array([])
-    # nonIP = np.array([])
-    # total = np.array([])
-    # ip_header = np.array([])
-    # tcp_header = np.array([])
-    # udp_header = np.array([])
+    ip = np.array([])
+    udp = np.array([])
+    tcp = np.array([])
+    nonIP = np.array([])
+    total = np.array([])
+    ip_header = np.array([])
+    tcp_header = np.array([])
+    udp_header = np.array([])
 
-    # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
-    # # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/packets.csv')
-    # packets = csv.reader(csvfile)
-    # tcp, tcp_header = isTCP(packets)
-    # csvfile.close()
-    # plot(tcp, 'tcp_packetsize_CDF_plot')
-    # plot(tcp, 'tcpHeader_size_CDF_plot')
-    # 
-    # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
-    # packets = csv.reader(csvfile)
-    # ip, ip_header = isIP(packets)
-    # csvfile.close()
-    # plot(tcp, 'IP_packetsize_CDF_plot')
-    # plot(tcp, 'IPheader_size_CDF_plot')
-    # 
-    # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
-    # packets = csv.reader(csvfile)
-    # udp, udp_header = isUDP(packets)
-    # csvfile.close()
-    # plot(tcp, 'UDP_packetsize_CDF_plot')
-    # plot(tcp, 'UDPheader_size_CDF_plot')
+    csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
+    # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/packets.csv')
+    packets = csv.reader(csvfile)
+    tcp, tcp_header = isTCP(packets)
+    print(tcp)
+    csvfile.close()
+    plot(tcp, 'tcp_packetsize_CDF_plot')
+    plot(tcp_header, 'tcpHeader_size_CDF_plot')
+    
+    csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
+    packets = csv.reader(csvfile)
+    ip, ip_header = isIP(packets)
+    print(ip_header)
+    csvfile.close()
+    plot(ip, 'IP_packetsize_CDF_plot')
+    plot(ip_header, 'IPheader_size_CDF_plot')
+    
+    csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
+    packets = csv.reader(csvfile)
+    udp, udp_header = isUDP(packets)
+    csvfile.close()
+    plot(udp, 'UDP_packetsize_CDF_plot')
+    plot(udp_header, 'UDPheader_size_CDF_plot')
     
     csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
     packets = csv.reader(csvfile)
