@@ -172,7 +172,7 @@ def getTCPState(flows):
             else:
                 failed += 1
     return requested, reset, finished, ongoing, failed, total
-# (56, 4292, 20, 7514, 0, 11882)
+# (66, 4294, 20, 8686, 0, 13066)
 
 def isRequest(flow):
     return flow[0][16] == 'Set' and len(flow) == 1
@@ -485,19 +485,20 @@ def medianRTTStartTime(flows):
 
 
 if __name__ == "__main__":   
-    csvfile = open('/Users/Greywolf/Documents/school/CSC/458/rtt.csv')
+    csvfile = open('/Users/Greywolf/Documents/school/CSC/458/packets.csv')
     # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
     packets = csv.reader(csvfile)
     flows = generateFlow(packets)
-    larNum, larSize, LonDur = getLargestFlow(flows)
-    getRTT(larNum)
+    print(getTCPState(flows))
+    # larNum, larSize, LonDur = getLargestFlow(flows)
+    # getRTT(larNum)
     # generateFlowNoDup()
 
-    hosts = getHighestConnections()
-    for host in hosts:
-        flowList = getHostsFlows(host, flows)
-        startT, medianRTT = medianRTTStartTime(flowList)
-        # plot here TODO
+    # hosts = getHighestConnections()
+    # for host in hosts:
+    #     flowList = getHostsFlows(host, flows)
+    #     startT, medianRTT = medianRTTStartTime(flowList)
+    #     # plot here TODO
 
 
 
