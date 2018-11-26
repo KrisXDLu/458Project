@@ -434,14 +434,17 @@ def calRTT(flow):
 #"Address A","Port A","Address B","Port B","Packets","Bytes","Packets A → B","Bytes A → B","Packets B → A","Bytes B → A","Rel Start","Duration","Bits/s A → B","Bits/s B → A"
 #    0          1          2          3
 def getHighestConnections():
-    csvfile = open('/Users/Greywolf/Documents/school/CSC/458/connections.csv')
+    # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/connections.csv')
+    csvfile = open('/Users/kuma/Documents/458Project/connections.csv')
     connections = csv.reader(csvfile)
     hostConnection = {}
     maxConn = [0, 0, 0]
     conList = [[], [], []]
+    
     for con in connections:
         key = [con[0], con[2]]
         key2 = [con[2], con[0]]
+        print(key)
         if key in hostConnection:
             hostConnection[key] += 1
         elif key2 in hostConnection:
@@ -505,24 +508,33 @@ def medianRTTStartTime(flows):
 
 if __name__ == "__main__":   
     # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/rtt.csv')
-    csvfile = open('/Users/kuma/Documents/458Project/rtt.csv')
-    packets = csv.reader(csvfile)
-    flows = generateFlow(packets)
-    a,b,c = getType(flows)
-    print(a,b,c)
-    larNum, larSize, lonDur = getLargestFlow(flows)
-    getRTT(larNum, 'largest3PacketNumber')
-    getRTT(larSize, 'largest3TotalBytesSize')
-    getRTT(lonDur, 'largest3Duration')
+    # csvfile = open('/Users/kuma/Documents/458Project/rtt.csv')
+    # packets = csv.reader(csvfile)
+    # flows = generateFlow(packets)
+    # a,b,c = getType(flows)
+    # print(a,b,c)
+    # larNum, larSize, lonDur = getLargestFlow(flows)
+    # getRTT(larNum, 'largest3PacketNumber')
+    # getRTT(larSize, 'largest3TotalBytesSize')
+    # getRTT(lonDur, 'largest3Duration')
     
     
     # generateFlowNoDup()
 
     hosts = getHighestConnections()
+    i=1
     for host in hosts:
         flowList = getHostsFlows(host, flows)
         startT, medianRTT = medianRTTStartTime(flowList)
+        
         # plot here TODO
+        
+        plt.plot(startT, medianRTT)
+        plt.title("medianRTT vs startT No." + str(i))
+        plt.grid(True)
+        plt.savefig(title)   
+        plt.clf()
+        i+=1
 
 
 
