@@ -6,20 +6,6 @@ import datetime
 import math
 import os
 
-
-# arr = np.random.normal(size=100)
-# 
-# plt.subplot(121)
-# hist, bin_edges = np.histogram(arr)
-# cdf = np.cumsum(hist)
-# plt.plot(cdf)
-# 
-# plt.subplot(122)
-# cdf = stats.cumfreq(arr)
-# plt.plot(cdf[0])
-# 
-# plt.show()
-
 # No.,Time,Source,Protocol,
 # 0    1    2      3
 # Length,Encapsulation type,Source IP,Destination IP,
@@ -43,7 +29,7 @@ def plot(data, title, log=True):
     plt.grid(True)
     plt.savefig(title)
 
-def total(packets):
+def totalPkt(packets):
     total = []
     for pkt in packets:
         protocol = pkt[11]
@@ -88,43 +74,56 @@ def isUDP(packets):
             udp.append(int(pkt[4]))
     return udp, udp_header
 
-if __name__ == "__main__":   
-    ip = np.array([])
-    udp = np.array([])
-    tcp = np.array([])
-    nonIP = np.array([])
-    total = np.array([])
-    ip_header = np.array([])
-    tcp_header = np.array([])
-    udp_header = np.array([])
+if __name__ == "__main__":  
 
-    csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
-    # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/packets.csv')
-    packets = csv.reader(csvfile)
-    tcp, tcp_header = isTCP(packets)
-    csvfile.close()
-    plot(tcp, 'tcp_packetsize_CDF_plot')
-    plot(tcp_header, 'tcpHeader_size_CDF_plot')
+##script for generating data 
+    # ip = np.array([])
+    # udp = np.array([])
+    # tcp = np.array([])
+    # nonIP = np.array([])
+    # total = np.array([])
+    # ip_header = np.array([])
+    # tcp_header = np.array([])
+    # udp_header = np.array([])
+
+    # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
+    # # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/packets.csv')
+    # packets = csv.reader(csvfile)
+    # tcp, tcp_header = isTCP(packets)
+    # csvfile.close()
+    # plot(tcp, 'tcp_packetsize_CDF_plot')
+    # plot(tcp_header, 'tcpHeader_size_CDF_plot')
+    # 
+    # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
+    # packets = csv.reader(csvfile)
+    # ip, ip_header = isIP(packets)
+    # csvfile.close()
+    # plot(ip, 'IP_packetsize_CDF_plot')
+    # plot(ip_header, 'IPheader_size_CDF_plot')
+    # 
+    # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
+    # packets = csv.reader(csvfile)
+    # udp, udp_header = isUDP(packets)
+    # csvfile.close()
+    # udp_header[:] = [8] * len(udp)
+    # plot(udp, 'UDP_packetsize_CDF_plot')
+    # plot(udp_header, 'UDPheader_size_CDF_plot')
+    # 
+    # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
+    # packets = csv.reader(csvfile)
+    # nonIP = isNonIP(packets)
+    # csvfile.close()
+    # plot(nonIP, 'non-IP_packetsize_CDF_plot')
     
-    csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
-    packets = csv.reader(csvfile)
-    ip, ip_header = isIP(packets)
-    csvfile.close()
-    plot(ip, 'IP_packetsize_CDF_plot')
-    plot(ip_header, 'IPheader_size_CDF_plot')
     
-    csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
-    packets = csv.reader(csvfile)
-    udp, udp_header = isUDP(packets)
-    csvfile.close()
-    plot(udp, 'UDP_packetsize_CDF_plot')
-    plot(udp_header, 'UDPheader_size_CDF_plot')
-    
-    csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
-    packets = csv.reader(csvfile)
-    nonIP = isNonIP(packets)
-    csvfile.close()
-    plot(nonIP, 'non-IP_packetsize_CDF_plot')
+    # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
+    # packets = csv.reader(csvfile)
+    # total = totalPkt(packets)
+    # print(total)
+    # plot(total, 'allPacket_size_CDF_plot')
+    # csvfile.close()
+    # udp_header[:] = [8] * len(udp)
+    # plot(udp_header, 'UDPheader_size_CDF_plot')
     
     
     # total(packets)
@@ -158,6 +157,7 @@ if __name__ == "__main__":
 # plot(udp_header, 'udp_header')
 # plot(total, 'total')
 # plot(nonIP, 'nonip')
+
 
 
 

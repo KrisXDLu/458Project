@@ -11,7 +11,6 @@ def replace_valueA_to_valueB(list, valueA, valueB):
         if item == valueA:
             list[idx] = valueB
 
-
 def scatter_plot(listX, listY, listY2, title, title1, title2):
     plt.plot(listX, listY)
     plt.plot(listX, listY2)
@@ -21,7 +20,6 @@ def scatter_plot(listX, listY, listY2, title, title1, title2):
     plt.savefig(title)    
     plt.clf()
     
-
 def plot(data, title, log=True):
     if log: data =np.log(data)
     plt.figure()
@@ -47,6 +45,9 @@ def plot(data, title, log=True):
 # The RTT, pack asso with ack, Info
 #  24          25                26
 
+## for Dataset Statistics below
+
+# Generate a flow dictionary
 def generateFlow(packets):
     dic_flow = {}
     for pkt in packets:
@@ -61,7 +62,7 @@ def generateFlow(packets):
     return dic_flow
 
 
-#list of counts of packets for each flow
+# Get list of counts of packets for each flow
 def getType(dictFlow):
     tcp = 0
     udp = 0
@@ -75,6 +76,7 @@ def getType(dictFlow):
             ip += len(dictFlow[flow])
     return tcp, udp, ip
 
+#Get list of flow count for all flows/tcp flows/udp flows
 def getFlowCount(dictFlow):
     tcp = 0
     udp = 0
@@ -88,7 +90,7 @@ def getFlowCount(dictFlow):
             ip += 1
     return tcp, udp, ip
 
-#list of durations for all flows/ tcp flows / udp flows
+#Get list of durations for all flows/ tcp flows / udp flows
 def getDuration(dictFlow):
     duration = []
     tcp = []
@@ -137,6 +139,7 @@ def flowSizeCal(flows):
             udpCount.append(count)
     return allSize, allCount, tcpSize, tcpCount, udpSize, udpCount, ratio
 
+# Get inter-packet arrival time List for all flows/ tcp flow/udp flow
 def interPacketArrival(flows):
     allTime = []
     tcpTime = []
@@ -144,13 +147,12 @@ def interPacketArrival(flows):
     for flow in flows:
         time = []
         pkt = flows[flow]
-        # print(pkt[0][6] + " " + pkt[0][7] + " " + pkt[0][8] + " " + pkt[0][9] + " " + pkt[0][3], flow)
+        
         first = float(pkt[0][1])
         for i in range(1, len(pkt)):
             key = pkt[i][6] + " " + pkt[i][7] + " " + pkt[i][8] + " " + pkt[i][9] + " " + pkt[i][3]
             if key == flow:
-                # if float(pkt[i][1]) - first == 278.157092:
-                    # print(pkt)
+               
                 time.append(float(pkt[i][1]) - first)
                 first = float(pkt[i][1])
             
@@ -161,6 +163,7 @@ def interPacketArrival(flows):
             udpTime += time
     return allTime, tcpTime, udpTime
 
+# Get TCP State count for all flows
 def getTCPState(flows):
     requested = 0
     reset = 0
@@ -183,7 +186,7 @@ def getTCPState(flows):
             else:
                 failed += 1
     return requested, reset, finished, ongoing, failed, total
-# (66, 4294, 20, 8686, 0, 13066)
+# (66, 4294, 20, 8686, 0, 13066) this is what we get for TCP state
 
 def isRequest(flow):
     return flow[0][16] == 'Set' and len(flow) == 1
@@ -217,6 +220,10 @@ def isFinished(flow):
 def isOngoing(flow):
     return not (isRequest(flow) or isReset(flow) or isFinished(flow))
 
+
+## for RTT Estimation below
+
+# Get the largest flow for RTT flow use
 def getLargestFlow(flows):
     pktNum = [0, 0, 0]
     byteSize = [0, 0, 0]
@@ -282,69 +289,7 @@ def getLargestFlow(flows):
                 resultDuration[2] = flow
     return resultNum, resultByte, resultDuration          
 
-
-def flowType(flows):
-    tcp, udp, ip = getType(flows)
-    fpt = open('/Users/Greywolf/Documents/school/CSC/458/project/flowType.txt', "w")
-    fpt.write("tcp\n")
-    fpt.write(str(tcp))
-    fpt.write("\n")
-    fpt.write("\n")
-    fpt.write("udp\n")
-    fpt.write(str(udp))
-    fpt.write("\n")
-    fpt.write("\n")
-    fpt.write("ip\n")
-    fpt.write(str(ip))
-    fpt.close()
-
-def flowDuration(flows):
-# # duration
-    duration, tcp, udp = getDuration(flows)
-    fpt = open('/Users/Greywolf/Documents/school/CSC/458/project/flowDuration.txt', "w")
-    fpt.write("Total flow\n")
-    fpt.write(str(duration))
-    fpt.write("\n")
-    fpt.write("\n")
-    fpt.write("TCP\n")
-    fpt.write(str(tcp))
-    fpt.write("\n")
-    fpt.write("\n")
-    fpt.write("UDP\n")
-    fpt.write(str(udp))
-    fpt.close()
-
-def flowSizeOutput(flows):
-    allSize, allCount, tcpSize, tcpCount, udpSize, udpCount, ratio = flowSizeCal(flows)
-    fpt = open('/Users/Greywolf/Documents/school/CSC/458/project/flowSize.txt', "w")
-    fpt.write("Total size\n")
-    fpt.write(str(allSize))
-    fpt.write("\n")
-    fpt.write("\n")
-    fpt.write("All Count\n")
-    fpt.write(str(allCount))
-    fpt.write("\n")
-    fpt.write("\n")
-    fpt.write("tcpSize\n")
-    fpt.write(str(tcpSize))
-    fpt.write("\n")
-    fpt.write("\n")
-    fpt.write("tcpCount\n")
-    fpt.write(str(tcpCount))
-    fpt.write("\n")
-    fpt.write("\n")
-    fpt.write("UDPSize\n")
-    fpt.write(str(udpSize))
-    fpt.write("\n")
-    fpt.write("\n")
-    fpt.write("UDP Count\n")
-    fpt.write(str(udpCount))
-    fpt.write("\n")
-    fpt.write("\n")
-    fpt.write("Ratio\n")
-    fpt.write(str(ratio))
-    fpt.close()
-
+# generate csv files in order to investigate flows
 def generateFlowCSV():
     output = open('/Users/Greywolf/Documents/school/CSC/458/flows.csv', "w")
     wr = csv.writer(output, dialect='excel')
@@ -354,6 +299,7 @@ def generateFlowCSV():
         wr.writerow([])
     output.close()
 
+# generate csv flows with no duplication
 def generateFlowNoDup():
     csvFile = open('/Users/Greywolf/Documents/school/CSC/458/rtt.csv')
     packets = csv.reader(csvFile)
@@ -369,13 +315,11 @@ def generateFlowNoDup():
     csvFile.close()
     return flows
 
-# larnum etc as param
+# get RTT flows estimation plots
 def getRTT(flowList,title):
     result = []
     i=1
     for flow in flowList:
-        #[estRTT1, samRTT1, time1], [estRTT2, samRTT2, time2]
-        #result.append(calRTT(flow))
         print(calRTT(flow))
         res1, res2 = calRTT(flow)        
         scatter_plot(res1[2],res1[0],res1[1],title+str(i)+'fD','estimateRTTvsTime','sampleRTTvsTime')
@@ -390,10 +334,7 @@ def getRTT(flowList,title):
 #     getRTT(larNum)
 
     
-
-# Estimated RTT <- (1 - alpha) * 
-#               previous_Estimated RTT + alpha 
-#               * wireshark RTT
+# generate lists of from the 
 def calRTT(flow):
     # two direction rtt
     estRTT1 = []
@@ -505,60 +446,10 @@ def medianRTTStartTime(flows):
 
 
 if __name__ == "__main__":   
-    # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/rtt.csv')
-    csvfile = open('/Users/kuma/Documents/458Project/rtt.csv')
-    packets = csv.reader(csvfile)
-    flows = generateFlow(packets)
-    # a,b,c = getType(flows)
-    # print(a,b,c)
-    # larNum, larSize, lonDur = getLargestFlow(flows)
-    # getRTT(larNum, 'largest3PacketNumber')
-    # getRTT(larSize, 'largest3TotalBytesSize')
-    # getRTT(lonDur, 'largest3Duration')
+    #scripts for generating data
+    ##MINJIA's plot
     
-    
-    # generateFlowNoDup()
-
-    hosts = getHighestConnections()
-    i=1
-    for host in hosts:
-        flowList = getHostsFlows(host, flows)
-        startT, medianRTT = medianRTTStartTime(flowList)
-        
-        print(medianRTT)
-        # plot here TODO
-        
-        plt.plot(startT, medianRTT)
-        title = "medianRTT_vs_startT_"+str(i)
-        plt.title(title)
-        plt.grid(True)
-        plt.savefig(title)  
-        plt.clf()
-        i+=1
-    
-
-
-    # print(flows.values()[:9])
-    # tcp,udp,ip = getFlowCount(flows)
-    # print("tcp, udp, ip:", tcp, udp, ip)
-    csvfile.close()
-
-    # flowtype
-    # flowType(flows)
-    
-    #flowCount
-    
-
-# # duration
-#     flowDuration(flows)
-# 
-#     flowSizeOutput(flows)
-#     interPacketArrival(flows)
-    
-    
-    #charlie's plot
-    
-    
+    ## plot for the Dataset Statistics part
     # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
     # packets = csv.reader(csvfile)
     # flows = generateFlow(packets)
@@ -568,43 +459,75 @@ if __name__ == "__main__":
     # plot(tcp, 'TCPflowDuration_CDF_plot')
     # plot(udp, 'UDPflowDuration_CDF_plot')
     # csvfile.close()
-    # 
-    #return allSize, allCount, tcpSize, tcpCount, udpSize, udpCount, ratio
+    
     # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
     # packets = csv.reader(csvfile)
     # flows = generateFlow(packets)
-    # # 
     # allInterPacket, tcpInterPacket, udpInterPacket = interPacketArrival(flows)
     # plot(allInterPacket, 'allInterPacketArrival_CDF_plot')
     # plot(tcpInterPacket, 'tcpInterPacketArrival_CDF_plot')
     # plot(udpInterPacket, 'udpInterPacketArrival_CDF_plot')
+    # csvfile.close()
 
-    # allSize, allCount, tcpSize, tcpCount, udpSize, udpCount, ratio = flowSizeCal(flows)
-    # print(len(allSize))
-    # 
+   
+    # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
+    # packets = csv.reader(csvfile)
+    # flows = generateFlow(packets) 
+    # # we have to change size of 0 to 1 to validate log xscale plots
     # replace_valueA_to_valueB(allSize, 0, 1)
     # replace_valueA_to_valueB(tcpSize, 0, 1)
     # replace_valueA_to_valueB(udpSize, 0, 1)
-    # 
     # plot(allSize, 'allFlowSizes_CDF_plot')
     # plot(tcpSize, 'TCPflowSize_CDF_plot')
     # plot(udpSize, 'UDPflowSize_CDF_plot')
+    # csvfile.close()
 
+    # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
+    # packets = csv.reader(csvfile)
+    # flows = generateFlow(packets) 
     # plot(ratio, 'TCPoverheadRatio_CDF_plot',False)
     # plot(ratio, 'TCPoverheadRatio_CDF_plot(with log)')
     # csvfile.close()
     
+    # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
+    # packets = csv.reader(csvfile)
+    # flows = generateFlow(packets) 
+    # allSize, allCount, tcpSize, tcpCount, udpSize, udpCount, ratio = flowSizeCal(flows)
+    # print(len(allSize))
+    # csvfile.close()
+    
+## RTT Estimation part
+    # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/rtt.csv')
+    # csvfile = open('/Users/kuma/Documents/458Project/rtt.csv')
+    # packets = csv.reader(csvfile)
+    # flows = generateFlow(packets)
+    # a,b,c = getType(flows)
+    # print(a,b,c)
+    # larNum, larSize, lonDur = getLargestFlow(flows)
+    # getRTT(larNum, 'largest3PacketNumber')
+    # getRTT(larSize, 'largest3TotalBytesSize')
+    # getRTT(lonDur, 'largest3Duration')
+    # generateFlowNoDup()
+    # csvfile.close()
 
-#     # flowtype
-#     flowType(flows)
-# # duration
-#     flowDuration(flows)
-
-
-
-#     flowSizeOutput(flows)
-    # interPacketArrival(flows)
-    # print(getTCPState(flows))
-    # print(len(getLargestFlow(flows)[0][0]),len(getLargestFlow(flows)[1][0]),len(getLargestFlow(flows)[2][0]))
-
-    # 
+    # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/rtt.csv')
+    # csvfile = open('/Users/kuma/Documents/458Project/rtt.csv')
+    # packets = csv.reader(csvfile)
+    # flows = generateFlow(packets)
+    # hosts = getHighestConnections()
+    # i=1
+    # for host in hosts:
+    #     flowList = getHostsFlows(host, flows)
+    #     startT, medianRTT = medianRTTStartTime(flowList)
+    #     
+    #     print(medianRTT)
+    #     # plot here TODO
+    #     
+    #     plt.plot(startT, medianRTT)
+    #     title = "medianRTT_vs_startT_"+str(i)
+    #     plt.title(title)
+    #     plt.grid(True)
+    #     plt.savefig(title)  
+    #     plt.clf()
+    #     i+=1
+    # csvfile.close()
