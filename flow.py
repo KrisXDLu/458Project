@@ -390,6 +390,7 @@ def calRTT(flow):
     for pkt in flow:
         if pkt[24] != '':
             RTT = float(pkt[24])
+            # print(pkt[6])
             if pkt[6] == source1: 
                 if flag[0] == 0:
                     SRTT1 = RTT
@@ -410,6 +411,7 @@ def calRTT(flow):
                     estRTT2.append(SRTT2)
                 samRTT2.append(RTT)
                 time2.append(float(pkt[1]))
+    print(len(estRTT1), len(estRTT2))
     return [estRTT1, samRTT1, time1], [estRTT2, samRTT2, time2]
             
 
@@ -420,8 +422,7 @@ if __name__ == "__main__":
     # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
     packets = csv.reader(csvfile)
     flows = generateFlow(packets)
-    print(len(getLargestFlow(flows)[0][0]),len(getLargestFlow(flows)[1][0]),len(getLargestFlow(flows)[2][0]))
-    # print(getRTT(flows))
+    getRTT(flows)
     # generateFlowNoDup()
 
 
