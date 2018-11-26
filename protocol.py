@@ -33,39 +33,12 @@ import os
 # ACK No,TCP Segment Len,Info
 # 20      21              22
 def plot(data, title, log=True):
-    # data.sort()
-    # print (data)
-    # count = len(data)
-    # plotDataset = [[],[]]
-    # count = len(data)
-    # plotDataset[0].append(data[0])
-    # plotDataset[1].append(float(1/count))
-    # t=1
-    # s=0
-    # 
-    # for i in range(1, count):
-    #     s += float(1/count)
-    #     if data[i] != data[i-1]:
-    #         plotDataset[0].append(data[i])
-    #         plotDataset[1].append(s)
-    #         t+=1
-    #     else:
-    #         plotDataset[1][t-1] += float(1/count)
-    #     
-    # plt.plot(plotDataset[0], plotDataset[1], '-', linewidth=2)
-    # 
-    # mu = np.mean(data, axis=0)
-    # sigma = np.std(data, axis=0)
-    # data = np.random.normal(mu, sigma, size=count)
-    # for i in range(len(data)):
-    #     if isinstance(data[i], str):
-    #         data[i] = int(data[i])
-    #     else:
-    #         data[i] = 1
-
+    
     if log: data = [np.log(i) for i in data]
     plt.figure()
     plt.hist(data, density=True, histtype='stepfilled', cumulative=True, alpha=0.75, edgecolor = 'black')
+    plt.xlabel('Log {} (Bytes)'.format(title[:-9]) if log else '{} (Bytes)'.format(title[:-9]))
+    plt.yticks(np.linspace(0,1,11))
     plt.title(title)
     plt.grid(True)
     plt.savefig(title)
@@ -129,7 +102,6 @@ if __name__ == "__main__":
     # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/packets.csv')
     packets = csv.reader(csvfile)
     tcp, tcp_header = isTCP(packets)
-    print(tcp)
     csvfile.close()
     plot(tcp, 'tcp_packetsize_CDF_plot')
     plot(tcp_header, 'tcpHeader_size_CDF_plot')
@@ -137,7 +109,6 @@ if __name__ == "__main__":
     csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
     packets = csv.reader(csvfile)
     ip, ip_header = isIP(packets)
-    print(ip_header)
     csvfile.close()
     plot(ip, 'IP_packetsize_CDF_plot')
     plot(ip_header, 'IPheader_size_CDF_plot')
@@ -152,7 +123,6 @@ if __name__ == "__main__":
     csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
     packets = csv.reader(csvfile)
     nonIP = isNonIP(packets)
-    print(nonIP)
     csvfile.close()
     plot(nonIP, 'non-IP_packetsize_CDF_plot')
     
