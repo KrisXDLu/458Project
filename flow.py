@@ -383,6 +383,7 @@ def getRTT(flowList,title):
         i+=1
     return result
 
+
 # sample to understand getRTT 
 # def getAllRTT(flows):
 #     larNum, larSize, LonDur = getLargestFlow(flows)
@@ -429,9 +430,78 @@ def calRTT(flow):
                 samRTT2.append(RTT)
                 time2.append(float(pkt[1]))
     return [estRTT1, samRTT1, time1], [estRTT2, samRTT2, time2]
-            
 
-        
+#"Address A","Port A","Address B","Port B","Packets","Bytes","Packets A → B","Bytes A → B","Packets B → A","Bytes B → A","Rel Start","Duration","Bits/s A → B","Bits/s B → A"
+#    0          1          2          3
+def getHighestConnections():
+    csvfile = open('/Users/Greywolf/Documents/school/CSC/458/connections.csv')
+    connections = csv.reader(csvfile)
+    hostConnection = {}
+    maxConn = [0, 0, 0]
+    conList = [[], [], []]
+    for con in connections:
+        key = [con[0], con[2]]
+        key2 = [con[2], con[0]]
+        if key in hostConnection:
+            hostConnection[key] += 1
+        elif key2 in hostConnection:
+            hostConnection[key2] += 1
+        else:
+            hostConnection[key] = 1
+    for con in hostConnection:
+        num = hostConnection[con]
+        if num > maxConn[0]:
+            maxConn[2] = maxConn[1]
+            maxConn[1] = maxConn[0]
+            maxConn[0] = num
+            conList[2] = conList[1]
+            conList[1] = conList[0]
+            conList[0] = con
+        elif num > maxConn[1]:
+            maxConn[2] = maxConn[1]
+            maxConn[1] = num
+            conList[2] = conList[1]
+            conList[1] = con
+        elif num > maxConn[2]:
+            maxConn[2] = num
+            conList[2] = con
+    return conList      
+
+# hosts = [source ip, dest ip]
+# flows = {srcip + srcport + desip + desport:[pkts]}
+def getHostsFlows(hosts, flows):
+    src = hosts[0]
+    des = hosts[1]
+    #list of flows(a flow is a list of packet) 
+    # belong to the pair of hosts
+    result = [] 
+    for flow in flows:
+        if src in flow and des in flow:
+            result.append(flows[flow])
+    return result
+
+# list of flow for that pair of hosts
+def medianRTTStartTime(flows):
+    startTime = []
+    medianRTT = []
+    for flow in flows:
+        startTime.append(float(flow[0][1]))
+        estRTT = []
+        flag = 0
+        for pkt in flow:
+            if pkt[24] != '':
+                RTT = float(pkt[24])
+                if flag == 0:
+                    SRTT = RTT
+                    estRTT.append(SRTT)
+                    flag = 1
+                else:
+                    SRTT = (1.0 - 1/8.0)*SRTT + 1/8.0 * RTT
+                    estRTT.append(SRTT)
+        median = math.floor(len(estRTT))
+        medianRTT.append(estRTT[median])
+    return startTime, medianRTT
+
 
 if __name__ == "__main__":   
     # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/rtt.csv')
@@ -447,6 +517,13 @@ if __name__ == "__main__":
     
     
     # generateFlowNoDup()
+
+    hosts = getHighestConnections()
+    for host in hosts:
+        flowList = getHostsFlows(host, flows)
+        startT, medianRTT = medianRTTStartTime(flowList)
+        # plot here TODO
+
 
 
     # print(flows.values()[:9])
