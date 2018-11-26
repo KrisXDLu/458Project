@@ -506,9 +506,9 @@ def medianRTTStartTime(flows):
 
 if __name__ == "__main__":   
     # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/rtt.csv')
-    # csvfile = open('/Users/kuma/Documents/458Project/rtt.csv')
-    # packets = csv.reader(csvfile)
-    # flows = generateFlow(packets)
+    csvfile = open('/Users/kuma/Documents/458Project/rtt.csv')
+    packets = csv.reader(csvfile)
+    flows = generateFlow(packets)
     # a,b,c = getType(flows)
     # print(a,b,c)
     # larNum, larSize, lonDur = getLargestFlow(flows)
@@ -525,21 +525,23 @@ if __name__ == "__main__":
         flowList = getHostsFlows(host, flows)
         startT, medianRTT = medianRTTStartTime(flowList)
         
+        print(medianRTT)
         # plot here TODO
         
         plt.plot(startT, medianRTT)
-        plt.title("medianRTT vs startT No." + str(i))
+        title = "medianRTT_vs_startT_"+str(i)
+        plt.title(title)
         plt.grid(True)
-        plt.savefig(title)   
+        plt.savefig(title)  
         plt.clf()
         i+=1
-
+    
 
 
     # print(flows.values()[:9])
     # tcp,udp,ip = getFlowCount(flows)
     # print("tcp, udp, ip:", tcp, udp, ip)
-    # csvfile.close()
+    csvfile.close()
 
     # flowtype
     # flowType(flows)
