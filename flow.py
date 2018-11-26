@@ -183,7 +183,7 @@ def getTCPState(flows):
             else:
                 failed += 1
     return requested, reset, finished, ongoing, failed, total
-# (56, 4292, 20, 7514, 0, 11882)
+# (66, 4294, 20, 8686, 0, 13066)
 
 def isRequest(flow):
     return flow[0][16] == 'Set' and len(flow) == 1
