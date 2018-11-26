@@ -21,7 +21,6 @@ def plot(data, title, log=True):
     plt.title(title)
     plt.grid(True)
     plt.savefig(title)
-    
 # No.,Time,Source,Protocol,
 # 0    1    2      3
 # Length,Encapsulation type,Source IP,Destination IP,
@@ -32,8 +31,10 @@ def plot(data, title, log=True):
 #   12   13        14        15
 # Syn,ACK,Fin,Reset,
 #  16  17  18  19
-# ACK No,TCP Segment Len, IP Size, Info
+# ACK No,TCP Segment Len, IP Size, Sequence number
 # 20      21              22        23
+# The RTT, pack asso with ack, Info
+#  24          25                26
 
 def generateFlow(packets):
     dic_flow = {}
@@ -116,7 +117,6 @@ def flowSizeCal(flows):
         if "tcp" in flows[flow][0][11]:
             tcpSize.append(size)
             tcpCount.append(count)
-
             if float(size) == 0.0:
                 ratio.append(9999)
             else:
@@ -158,7 +158,7 @@ def getTCPState(flows):
     failed = 0
     total = 0
     for key in flows:
-        if 'TCP' in key:
+        if "tcp" in flows[key][0][11]:
             total += 1
             flow = flows[key]
             if isRequest(flow):
@@ -358,15 +358,71 @@ def generateFlowNoDup():
     csvFile.close()
     return flows
 
-def getRTT(larNum, larSize, LonDur):
+def getRTT(flows):
+    larNum, larSize, LonDur = getLargestFlow(flows)
+    resultNum = []
+    resultSize = []
+    resultDur = []
+    for flow in larNum:
+        resultNum.append(calRTT(flow))
+    for flow in larSize:
+        resultSize.append(calRTT(flow))
+    for flow in LonDur:
+        resultDur.append(calRTT(flow))
+    return resultNum, resultSize, resultDur
+    
 
+# Estimated RTT <- (1 - alpha) * 
+#               previous_Estimated RTT + alpha 
+#               * wireshark RTT
+def calRTT(flow):
+    # two direction rtt
+    estRTT1 = []
+    estRTT2 = []
+    time1 = []
+    samRTT1 = []
+    samRTT2 = []
+    time2 = []
+    flag = [0,0]
+    SRTT1 = 0
+    SRTT2 = 0
+    source1 = flow[0][6]
+    for pkt in flow:
+        if pkt[24] != '':
+            RTT = float(pkt[24])
+            if pkt[6] == source1: 
+                if flag[0] == 0:
+                    SRTT1 = RTT
+                    estRTT1.append(SRTT1)
+                    flag[0] = 1
+                else:
+                    SRTT1 = (1.0 - 1/8.0)*SRTT1 + 1/8.0 * RTT
+                    estRTT1.append(SRTT1)
+                samRTT1.append(RTT)
+                time1.append(float(pkt[1]))
+            else:
+                if flag[1] == 0:
+                    SRTT2 = RTT
+                    estRTT2.append(SRTT2)
+                    flag[1] = 1
+                else:
+                    SRTT2 = (1.0 - 1/8.0)*SRTT2 + 1/8.0 * RTT
+                    estRTT2.append(SRTT2)
+                samRTT2.append(RTT)
+                time2.append(float(pkt[1]))
+    return [estRTT1, samRTT1, time1], [estRTT2, samRTT2, time2]
+            
+
+        
 
 if __name__ == "__main__":   
-    # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/packets.csv')
+    csvfile = open('/Users/Greywolf/Documents/school/CSC/458/rtt.csv')
     # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
-    # packets = csv.reader(csvfile)
-    # flows = generateFlow(packets)
-    generateFlowNoDup()
+    packets = csv.reader(csvfile)
+    flows = generateFlow(packets)
+    print(len(getLargestFlow(flows)[0][0]),len(getLargestFlow(flows)[1][0]),len(getLargestFlow(flows)[2][0]))
+    # print(getRTT(flows))
+    # generateFlowNoDup()
 
 
     # print(flows.values()[:9])
@@ -401,23 +457,18 @@ if __name__ == "__main__":
     # csvfile.close()
     # 
     #return allSize, allCount, tcpSize, tcpCount, udpSize, udpCount, ratio
-
-    csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
-    packets = csv.reader(csvfile)
-    flows = generateFlow(packets)
-    # 
+    # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
+    # packets = csv.reader(csvfile)
+    # flows = generateFlow(packets)
+    # # 
     # allInterPacket, tcpInterPacket, udpInterPacket = interPacketArrival(flows)
-    # plot(allInterPacket, 'ALLinterPacketArrival_CDF_plot')
-    # plot(tcpInterPacket, 'TCPinterPacketArrival_CDF_plot')
-    # plot(udpInterPacket, 'UDPinterPacketArrival_CDF_plot')
+    # plot(allInterPacket, 'allInterPacketArrival_CDF_plot')
+    # plot(tcpInterPacket, 'tcpInterPacketArrival_CDF_plot')
+    # plot(udpInterPacket, 'udpInterPacketArrival_CDF_plot')
 
-    allSize, allCount, tcpSize, tcpCount, udpSize, udpCount, ratio = flowSizeCal(flows)
+    # allSize, allCount, tcpSize, tcpCount, udpSize, udpCount, ratio = flowSizeCal(flows)
     # print(len(allSize))
     # 
-    
-    print("all flows, bytes:", len(allSize), sum(allSize))
-    print("tcp flows, bytes:", len(tcpSize), sum(tcpSize))
-    print("udp flows, bytes:", len(udpSize), sum(udpSize))
     # replace_valueA_to_valueB(allSize, 0, 1)
     # replace_valueA_to_valueB(tcpSize, 0, 1)
     # replace_valueA_to_valueB(udpSize, 0, 1)
@@ -426,9 +477,9 @@ if __name__ == "__main__":
     # plot(tcpSize, 'TCPflowSize_CDF_plot')
     # plot(udpSize, 'UDPflowSize_CDF_plot')
 
-   ##   plot(ratio, 'TCPoverheadRatio_CDF_plot',False)
+    # plot(ratio, 'TCPoverheadRatio_CDF_plot',False)
     # plot(ratio, 'TCPoverheadRatio_CDF_plot(with log)')
-    csvfile.close()
+    # csvfile.close()
     
 
 #     # flowtype
@@ -442,3 +493,5 @@ if __name__ == "__main__":
     # interPacketArrival(flows)
     # print(getTCPState(flows))
     # print(len(getLargestFlow(flows)[0][0]),len(getLargestFlow(flows)[1][0]),len(getLargestFlow(flows)[2][0]))
+
+    # 
