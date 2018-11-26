@@ -431,8 +431,7 @@ def calRTT(flow):
                 time2.append(float(pkt[1]))
     return [estRTT1, samRTT1, time1], [estRTT2, samRTT2, time2]
 
-#"Address A","Port A","Address B","Port B","Packets","Bytes","Packets A → B","Bytes A → B","Packets B → A","Bytes B → A","Rel Start","Duration","Bits/s A → B","Bits/s B → A"
-#    0          1          2          3
+
 def getHighestConnections():
     # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/connections.csv')
     csvfile = open('/Users/kuma/Documents/458Project/connections.csv')
@@ -442,9 +441,8 @@ def getHighestConnections():
     conList = [[], [], []]
     
     for con in connections:
-        key = [con[0], con[2]]
-        key2 = [con[2], con[0]]
-        print(key)
+        key = (con[0], con[2])
+        key2 = (con[2], con[0])
         if key in hostConnection:
             hostConnection[key] += 1
         elif key2 in hostConnection:
@@ -501,7 +499,7 @@ def medianRTTStartTime(flows):
                 else:
                     SRTT = (1.0 - 1/8.0)*SRTT + 1/8.0 * RTT
                     estRTT.append(SRTT)
-        median = math.floor(len(estRTT))
+        median = int(math.floor(len(estRTT)/2))
         medianRTT.append(estRTT[median])
     return startTime, medianRTT
 
