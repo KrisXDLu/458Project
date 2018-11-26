@@ -358,18 +358,18 @@ def generateFlowNoDup():
     csvFile.close()
     return flows
 
-def getRTT(flows):
-    larNum, larSize, LonDur = getLargestFlow(flows)
-    resultNum = []
-    resultSize = []
-    resultDur = []
-    for flow in larNum:
-        resultNum.append(calRTT(flow))
-    for flow in larSize:
-        resultSize.append(calRTT(flow))
-    for flow in LonDur:
-        resultDur.append(calRTT(flow))
-    return resultNum, resultSize, resultDur
+# larnum etc as param
+def getRTT(flowList):
+    result = []
+    for flow in flowList:
+        result.append(calRTT(flow))
+    return result
+
+# sample to understand getRTT 
+# def getAllRTT(flows):
+#     larNum, larSize, LonDur = getLargestFlow(flows)
+#     getRTT(larNum)
+
     
 
 # Estimated RTT <- (1 - alpha) * 
@@ -422,7 +422,8 @@ if __name__ == "__main__":
     # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
     packets = csv.reader(csvfile)
     flows = generateFlow(packets)
-    getRTT(flows)
+    larNum, larSize, LonDur = getLargestFlow(flows)
+    getRTT(larNum)
     # generateFlowNoDup()
 
 
