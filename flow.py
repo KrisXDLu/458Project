@@ -11,8 +11,18 @@ def replace_valueA_to_valueB(list, valueA, valueB):
         if item == valueA:
             list[idx] = valueB
 
-def plot(data, title, log=True):
+
+def scatter_plot(listX, listY, listY2, title, title1, title2):
+    plt.plot(listX, listY)
+    plt.plot(listX, listY2)
+    plt.title(title)
+    plt.legend([title1, title2], loc='upper left')
+    plt.grid(True)
+    plt.savefig(title)    
+    plt.clf()
     
+
+def plot(data, title, log=True):
     if log: data =np.log(data)
     plt.figure()
     plt.hist(data, density=True, histtype='stepfilled', cumulative=True, alpha=0.75, edgecolor = 'black')
@@ -21,6 +31,7 @@ def plot(data, title, log=True):
     plt.title(title)
     plt.grid(True)
     plt.savefig(title)
+    
 # No.,Time,Source,Protocol,
 # 0    1    2      3
 # Length,Encapsulation type,Source IP,Destination IP,
@@ -359,10 +370,17 @@ def generateFlowNoDup():
     return flows
 
 # larnum etc as param
-def getRTT(flowList):
+def getRTT(flowList,title):
     result = []
+    i=1
     for flow in flowList:
-        result.append(calRTT(flow))
+        #[estRTT1, samRTT1, time1], [estRTT2, samRTT2, time2]
+        #result.append(calRTT(flow))
+        print(calRTT(flow))
+        res1, res2 = calRTT(flow)        
+        scatter_plot(res1[2],res1[0],res1[1],title+str(i)+'fD','estimateRTTvsTime','sampleRTTvsTime')
+        scatter_plot(res2[2],res2[0],res2[1],title+str(i)+'bD','estimateRTTvsTime','sampleRTTvsTime')
+        i+=1
     return result
 
 
@@ -415,11 +433,13 @@ def calRTT(flow):
 
 
 def getHighestConnections():
-    csvfile = open('/Users/Greywolf/Documents/school/CSC/458/connections.csv')
+    # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/connections.csv')
+    csvfile = open('/Users/kuma/Documents/458Project/connections.csv')
     connections = csv.reader(csvfile)
     hostConnection = {}
     maxConn = [0, 0, 0]
     conList = [[], [], []]
+    
     for con in connections:
         key = (con[0], con[2])
         key2 = (con[2], con[0])
@@ -485,20 +505,34 @@ def medianRTTStartTime(flows):
 
 
 if __name__ == "__main__":   
-    csvfile = open('/Users/Greywolf/Documents/school/CSC/458/packets.csv')
-    # csvfile = open('/Users/kuma/Documents/458Project/packets.csv')
-    packets = csv.reader(csvfile)
-    flows = generateFlow(packets)
-    print(getTCPState(flows))
-    # larNum, larSize, LonDur = getLargestFlow(flows)
-    # getRTT(larNum)
+    # csvfile = open('/Users/Greywolf/Documents/school/CSC/458/rtt.csv')
+    # csvfile = open('/Users/kuma/Documents/458Project/rtt.csv')
+    # packets = csv.reader(csvfile)
+    # flows = generateFlow(packets)
+    # a,b,c = getType(flows)
+    # print(a,b,c)
+    # larNum, larSize, lonDur = getLargestFlow(flows)
+    # getRTT(larNum, 'largest3PacketNumber')
+    # getRTT(larSize, 'largest3TotalBytesSize')
+    # getRTT(lonDur, 'largest3Duration')
+    
+    
     # generateFlowNoDup()
 
-    # hosts = getHighestConnections()
-    # for host in hosts:
-    #     flowList = getHostsFlows(host, flows)
-    #     startT, medianRTT = medianRTTStartTime(flowList)
-    #     # plot here TODO
+    hosts = getHighestConnections()
+    i=1
+    for host in hosts:
+        flowList = getHostsFlows(host, flows)
+        startT, medianRTT = medianRTTStartTime(flowList)
+        
+        # plot here TODO
+        
+        plt.plot(startT, medianRTT)
+        plt.title("medianRTT vs startT No." + str(i))
+        plt.grid(True)
+        plt.savefig(title)   
+        plt.clf()
+        i+=1
 
 
 
